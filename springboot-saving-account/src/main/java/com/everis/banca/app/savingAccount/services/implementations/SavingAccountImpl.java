@@ -1,11 +1,9 @@
 package com.everis.banca.app.savingAccount.services.implementations;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +82,7 @@ public class SavingAccountImpl implements SavingAccountService {
 							
 							MovementDocument movement = MovementDocument.builder()
 									.tipoMovimiento("Deposito")
-									.tipoProducto("Cuenta Ahorros")
+									.tipoProducto("Cuenta de Ahorro")
 									.fechaMovimiento(new Timestamp(date.getTime()))
 									.idCuenta(idCuenta)
 									.idCliente(acc.getClientId())
@@ -113,7 +111,7 @@ public class SavingAccountImpl implements SavingAccountService {
 							
 							MovementDocument movement = MovementDocument.builder()
 									.tipoMovimiento("Deposito")
-									.tipoProducto("Cuenta Ahorros")
+									.tipoProducto("Cuenta de Ahorro")
 									.fechaMovimiento(date)
 									.idCuenta(idCuenta)
 									.comission(comissionPerMovement)
@@ -163,7 +161,7 @@ public class SavingAccountImpl implements SavingAccountService {
 						
 						MovementDocument movement = MovementDocument.builder()
 								.tipoMovimiento("Retiro")
-								.tipoProducto("Cuenta Corriente")
+								.tipoProducto("Cuenta de Ahorro")
 								.fechaMovimiento(date)
 								.comission(comissionPerMovement)
 								.idCuenta(idCuenta)
@@ -209,6 +207,38 @@ public class SavingAccountImpl implements SavingAccountService {
 	@Override
 	public Mono<SavingAccount> getSavingAccount(String idAccount) {
 		return savingAccountDao.findById(idAccount);
+	}
+
+	@Override
+	public Mono<Boolean> payWithDebitCard(String idAccount, Double cantidad) {
+		return savingAccountDao.findById(idAccount).flatMap( c -> {
+			
+			if(c.getAmountInAccount() - cantidad < 0) {
+				return Mono.just(false);
+			}else {
+				c.setAmountInAccount(c.getAmountInAccount() - cantidad);
+					
+				return savingAccountDao.save(c).flatMap(acc -> {
+					
+					Date date = Calendar.getInstance().getTime();
+					MovementDocument movement = MovementDocument.builder()
+							.tipoMovimiento("Pago Tarjeta Debito")
+							.tipoProducto("Cuenta de Ahorro")
+							.fechaMovimiento(date)
+							.idCuenta(idAccount)
+							.idCliente(acc.getClientId())
+							.build();
+					
+					return webClientBuilder.build().post()
+					.uri(urlGateway+"/api/movement/saveMovement")
+					.body(Mono.just(movement), MovementDocument.class)
+					.retrieve().bodyToMono(MovementDocument.class).flatMap( md -> {
+						return Mono.just(true);
+					});
+				});
+			}
+
+		});
 	}
 	
 

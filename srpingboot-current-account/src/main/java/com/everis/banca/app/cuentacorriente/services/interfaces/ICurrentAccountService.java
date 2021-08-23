@@ -36,6 +36,8 @@ public interface ICurrentAccountService {
 
 	Mono<CurrentAccount> getCurrentAccount(String idAccount);
 
+	Mono<Boolean> payWithDebitCard(String idAccount, Double mount);
+
 	 
 
 

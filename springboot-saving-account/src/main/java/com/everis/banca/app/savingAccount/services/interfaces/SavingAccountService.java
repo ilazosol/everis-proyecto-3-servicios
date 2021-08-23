@@ -32,4 +32,6 @@ public interface SavingAccountService {
 
 	Mono<SavingAccount> getSavingAccount(String idAccount);
 
+	Mono<Boolean> payWithDebitCard(String idAccount, Double mount);
+
 }

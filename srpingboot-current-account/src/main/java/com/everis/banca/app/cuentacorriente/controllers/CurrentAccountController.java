@@ -10,10 +10,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.everis.banca.app.cuentacorriente.dao.CurrentAccountDao;
 import com.everis.banca.app.cuentacorriente.models.documents.CurrentAccount;
 import com.everis.banca.app.cuentacorriente.services.interfaces.ICurrentAccountService;
 
@@ -127,6 +125,11 @@ public class CurrentAccountController {
 			@GetMapping("/getProductByDates/{fechaInicio}/{fechaFin}")
 			public Flux<CurrentAccount> getProductByDates(@PathVariable String fechaInicio, @PathVariable String fechaFin) throws ParseException {
 				return currentAccountService.getProductByDates(fechaInicio, fechaFin);
+			}
+			
+			@GetMapping("/payWithDebit/{idAccount}/{mount}")
+			public Mono<Boolean> payWithDebitCard(@PathVariable String idAccount,@PathVariable Double mount) {
+				return currentAccountService.payWithDebitCard(idAccount,mount);
 			}
 
 			

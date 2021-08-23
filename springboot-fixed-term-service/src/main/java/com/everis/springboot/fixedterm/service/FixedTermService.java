@@ -20,4 +20,6 @@ public interface FixedTermService {
 
 	Mono<FixedTermDocument> getFixedAccount(String idAccount);
 
+	Mono<Boolean> payWithDebitCard(String idAccount, Double mount);
+
 }

@@ -134,6 +134,40 @@ public class FixedTermServiceImpl implements FixedTermService {
 	public Mono<FixedTermDocument> getFixedAccount(String idAccount) {
 		return fixedTermDao.findById(idAccount);
 	}
+
+	@Override
+	public Mono<Boolean> payWithDebitCard(String idAccount, Double cantidad) {	
+		return fixedTermDao.findById(idAccount).flatMap( c -> {
+		
+			if(c.getAmountInAccount() - cantidad < 0) {
+				return Mono.just(false);
+			}else {
+				c.setAmountInAccount(c.getAmountInAccount() - cantidad);
+					
+				return fixedTermDao.save(c).flatMap(acc -> {
+					
+					Date date = Calendar.getInstance().getTime();
+					MovementDocument movement = MovementDocument.builder()
+							.tipoMovimiento("Pago Tarjeta Debito")
+							.tipoProducto("Cuenta Plazo Fijo")
+							.fechaMovimiento(date)
+							.idCuenta(idAccount)
+							.idCliente(acc.getClientId())
+							.build();
+					
+					return webClientBuilder.build().post()
+					.uri(urlGateway+"/api/movement/saveMovement")
+					.body(Mono.just(movement), MovementDocument.class)
+					.retrieve().bodyToMono(MovementDocument.class).flatMap( md -> {
+						return Mono.just(true);
+					});
+					
+					
+				});
+			}
+
+		});
+	}
 	
 	
 

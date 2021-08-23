@@ -127,6 +127,11 @@ public class SavingAccountController {
 				return savingAccountService.getProductByDates(fechaInicio, fechaFin);
 			}
 			
+			@GetMapping("/payWithDebit/{idAccount}/{mount}")
+			public Mono<Boolean> payWithDebitCard(@PathVariable String idAccount,@PathVariable Double mount) {
+				return savingAccountService.payWithDebitCard(idAccount,mount);
+			}
+			
 			
 		}
 	

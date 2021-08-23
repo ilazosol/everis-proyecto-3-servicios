@@ -1,8 +1,11 @@
 package com.example.everis.springboot.debitcard.service.Impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -136,24 +139,87 @@ public class DebitCardServiceImpl implements DebitCardService {
 		Map<String, Object> response = new HashMap<>();
 		
 		return debitCardDao.findById(idDebitCard).flatMap( dc -> {
-			AccountDocument account = dc.getAsociatedAccounts().stream().filter( acc -> acc.getPrincipal() == true ).collect(Collectors.toList()).get(0);
 			
-			String typeUrl = account.getTypeAccount().equals("Cuenta Corriente") 
+			Integer numberAccounts = dc.getAsociatedAccounts().size();
+			
+			if(numberAccounts == 0) {
+				response.put("mensaje", "No existen cuentas para esta tarjeta de debito");
+				return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+			}else {
+				
+				AccountDocument account = dc.getAsociatedAccounts().stream().filter( acc -> acc.getPrincipal() == true ).collect(Collectors.toList()).get(0);
+				
+				String typeUrl = account.getTypeAccount().equals("Cuenta Corriente") 
+						? "currentAccount" 
+						: account.getTypeAccount().equals("Cuenta de Ahorro") 
+						? "accountSavings" 
+						: account.getTypeAccount().equals("Cuenta Plazo Fijo")
+						? "fixed-term"
+						: "";
+									
+				return webClientBuilder.build().get()
+						.uri(urlGateway+"/api/"+typeUrl+"/payWithDebit/"+account.getIdAccount()+"/"+amount)
+						.retrieve().bodyToMono(Boolean.class).flatMap( b -> {
+							if(b) {
+								response.put("mensaje", "Se hizo el pago con la cuenta exitosamente");
+								return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+							}else {
+								List<AccountDocument> secondaryAccounts = dc.getAsociatedAccounts()
+										.stream()
+										.filter( acc -> acc.getPrincipal() == false )
+										.collect(Collectors.toList());
+																
+								Collections.sort(secondaryAccounts, new Comparator<AccountDocument>() {
+									  public int compare(AccountDocument o1, AccountDocument o2) {
+									      return o1.getTimeAdded().compareTo(o2.getTimeAdded());
+									  }
+									});
+								
+								log.info(secondaryAccounts.toString());
+								
+								return getResponsePay(secondaryAccounts,0,amount);
+								
+							}
+						});
+				
+			}
+		});
+				
+		
+	}
+	
+	
+	public Mono<ResponseEntity<Map<String, Object>>> getResponsePay(List<AccountDocument> secondaryAccounts,Integer position, Double amount){
+		Map<String, Object> response = new HashMap<>();
+				
+		if(secondaryAccounts.size() < position + 1) {
+			response.put("mensaje", "No existen cuentas disponibles para hacer el pago");
+			return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+		}else {
+			
+			log.info("Entro aqui para el segundo bucle");
+			String typeUrl = secondaryAccounts.get(position).getTypeAccount().equals("Cuenta Corriente") 
 					? "currentAccount" 
-					: account.getTypeAccount().equals("Cuenta de Ahorro") 
+					: secondaryAccounts.get(position).getTypeAccount().equals("Cuenta de Ahorro") 
 					? "accountSavings" 
-					: account.getTypeAccount().equals("Cuenta Plazo Fijo")
+					: secondaryAccounts.get(position).getTypeAccount().equals("Cuenta Plazo Fijo")
 					? "fixed-term"
 					: "";
-								
-			return webClientBuilder.build().post()
-					.uri(urlGateway+"/api/"+typeUrl+"/payWithDebit/"+account.getIdAccount())
-					.body(Mono.just(account), AccountDocument.class)
-					.retrieve().bodyToMono(AccountDocument.class).flatMap( o -> {
-						response.put("mensaje", "Se hizo el pago con la cuenta exitosamente");
-						return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
-					});
 			
-		});
+			
+			return webClientBuilder.build().get()
+					.uri(urlGateway+"/api/"+typeUrl+"/payWithDebit/"+secondaryAccounts.get(position).getIdAccount()+"/"+amount)
+					.retrieve().bodyToMono(Boolean.class).flatMap( isOk -> {
+						if(isOk) {
+							response.put("mensaje", "Se hizo el pago con la cuenta: "+secondaryAccounts.get(position).getTypeAccount() + " exitosamente");
+							return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+						}else {
+							Integer pos = position + 1;
+							return getResponsePay(secondaryAccounts,pos,amount);
+						}
+					});
+		}
+		
+		
 	}
 }

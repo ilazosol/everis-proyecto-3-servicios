@@ -1,6 +1,5 @@
 package com.everis.banca.app.cuentacorriente.services.implementations;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -81,8 +80,6 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 	@Override
 	public Mono<ResponseEntity<Map<String,Object>>> depositar(String idCuenta,Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
-		Calendar calendar = Calendar.getInstance();
-		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 	
 		return webClientBuilder.build().get()
 			    .uri(urlGateway+"/api/movement/numberOfMovements?idCuenta="+idCuenta)
@@ -96,7 +93,7 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 					MovementDocument movement = MovementDocument.builder()
 							.tipoMovimiento("Deposito")
 							.tipoProducto("Cuenta Corriente")
-							.fechaMovimiento(dateFormat.format(date))
+							.fechaMovimiento(date)
 							.idCuenta(idCuenta)
 							.idCliente(acc.getClientId())
 							.build();
@@ -121,7 +118,7 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 					MovementDocument movement = MovementDocument.builder()
 							.tipoMovimiento("Deposito")
 							.tipoProducto("Cuenta Corriente")
-							.fechaMovimiento(dateFormat.format(date))
+							.fechaMovimiento(date)
 							.comission(comissionPerMovement)
 							.idCuenta(idCuenta)
 							.idCliente(acc.getClientId())
@@ -146,8 +143,6 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> retirar(String idCuenta, Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
-		Calendar calendar = Calendar.getInstance();
-		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		
 		return webClientBuilder.build().get()
 			    .uri(urlGateway+"/api/movement/numberOfMovements?idCuenta="+idCuenta)
@@ -172,7 +167,7 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 						MovementDocument movement = MovementDocument.builder()
 								.tipoMovimiento("Retiro")
 								.tipoProducto("Cuenta Corriente")
-								.fechaMovimiento(dateFormat.format(date))
+								.fechaMovimiento(date)
 								.idCuenta(idCuenta)
 								.idCliente(acc.getClientId())
 								.build();
@@ -208,7 +203,7 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 							.tipoMovimiento("Retiro")
 							.tipoProducto("Cuenta Corriente")
 							.comission(comissionPerMovement)
-							.fechaMovimiento(dateFormat.format(date))
+							.fechaMovimiento(date)
 							.idCuenta(idCuenta)
 							.idCliente(acc.getClientId())
 							.build();
@@ -252,6 +247,38 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 	@Override
 	public Mono<CurrentAccount> getCurrentAccount(String idAccount) {
 		return currentAccountDao.findById(idAccount);
+	}
+
+	@Override
+	public Mono<Boolean> payWithDebitCard(String idAccount, Double cantidad) {
+		return currentAccountDao.findById(idAccount).flatMap( c -> {
+			
+			if(c.getAmountInAccount() - cantidad < 0) {
+				return Mono.just(false);
+			}else {
+				c.setAmountInAccount(c.getAmountInAccount() - cantidad);
+					
+				return currentAccountDao.save(c).flatMap(acc -> {
+					
+					Date date = Calendar.getInstance().getTime();
+					MovementDocument movement = MovementDocument.builder()
+							.tipoMovimiento("Pago Tarjeta Debito")
+							.tipoProducto("Cuenta Corriente")
+							.fechaMovimiento(date)
+							.idCuenta(idAccount)
+							.idCliente(acc.getClientId())
+							.build();
+					
+					return webClientBuilder.build().post()
+					.uri(urlGateway+"/api/movement/saveMovement")
+					.body(Mono.just(movement), MovementDocument.class)
+					.retrieve().bodyToMono(MovementDocument.class).flatMap( md -> {
+						return Mono.just(true);
+					});
+				});
+			}
+
+		});
 	}
 	
 

@@ -1,5 +1,7 @@
 package com.everis.banca.app.cuentacorriente.models;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +19,7 @@ public class MovementDocument {
 	
 	private String tipoProducto;
 	
-	private String fechaMovimiento;
+	private Date fechaMovimiento;
 	private double comission;
 	private String idCuenta;
 	
