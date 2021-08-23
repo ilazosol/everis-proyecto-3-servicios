@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reportcomission3" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="da402df3-685c-436b-bcc8-fd316c52de09">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MongoDB"/>
+	<field name="amountInAccount" class="java.lang.Double"/>
+	<field name="clientId" class="java.lang.String"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="modifiedAt" class="java.util.Date"/>
+	<field name="createAt" class="java.util.Date"/>
+	<field name="movementsPerMonth" class="java.lang.Integer"/>
+	<field name="costOfMaintenance" class="java.lang.Double"/>
+	<field name="diaRetiro" class="java.lang.Integer"/>
+	<field name="creditType" class="java.lang.String"/>
+	<field name="balance" class="java.lang.Double"/>
+	<field name="creditLimit" class="java.lang.Double"/>
+	<field name="idClient" class="java.lang.String"/>
+	<field name="creationDate" class="java.util.Date"/>
+	<field name="creditPaid" class="java.lang.Double"/>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="72">
+			<frame>
+				<reportElement mode="Opaque" x="-20" y="-20" width="595" height="92" backcolor="#006699" uuid="cc1be195-8af0-4b78-86ac-dcc3a74aaf3e"/>
+				<staticText>
+					<reportElement x="20" y="20" width="234" height="43" forecolor="#FFFFFF" uuid="9a7bd8fe-bc24-4395-8282-bc3ff476e535"/>
+					<textElement>
+						<font size="34" isBold="true"/>
+					</textElement>
+					<text><![CDATA[REPORTE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="280" y="30" width="295" height="20" forecolor="#FFFFFF" uuid="838390df-1c9e-48b8-bf32-fc55156a3c11"/>
+					<textElement textAlignment="Right">
+						<font size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Reporte general de producto]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="13"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="25">
+			<line>
+				<reportElement x="-20" y="20" width="595" height="1" forecolor="#666666" uuid="647c46d2-05ea-42ae-b194-bfdd4fd41408"/>
+			</line>
+			<staticText>
+				<reportElement mode="Opaque" x="150" y="0" width="116" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="0548cb69-d79a-4ede-9bdf-aea86e99f362">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha de Creación]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="90" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="a876f8d8-75e9-48c2-9349-0332d2b91e8d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8c8556b9-7cf8-4db7-a85d-a9555baa62f7"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tipo de Cuenta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="90" y="0" width="60" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="ac7bce28-f9ca-4e0e-884e-451c199d0d81">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6bd77f4d-cb1b-4cdf-856a-92ffb9506d7d"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Saldo actual]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="266" y="0" width="95" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="5bc11da0-2135-411e-a571-fddc2372797f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Límite Movimientos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="361" y="0" width="95" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="b8c18cf8-bf65-40b1-96a1-7f282ddb18b9">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Costo Mantenimiento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="456" y="0" width="99" height="20" forecolor="#006699" backcolor="#E6E6E6" uuid="4b84654c-4e1a-4087-9c8e-d59539d8ac59">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Día Retiro]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="19" width="555" height="1" uuid="b9f4eb68-eaff-4969-8453-51f04381b2e2"/>
+			</line>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="0" y="0" width="90" height="20" uuid="bdf98418-fc40-451c-9d99-bee5047a498e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{type} != null ? $F{type} : $F{creditType}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="90" y="-1" width="60" height="20" uuid="b965ad4a-f7c7-40d1-8f01-e96ffa61b9e6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amountInAccount} != null ? $F{amountInAccount} : $F{balance}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="456" y="-4" width="99" height="20" uuid="e0924c72-cc5d-47ac-b97e-751c0ede9293">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{diaRetiro} != null ? $F{diaRetiro} : "No tiene"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="150" y="0" width="116" height="20" uuid="546a18b0-ae28-4f0f-b44a-ad86c2219619">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{createAt} != null ? new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format($F{createAt}) : new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format($F{creationDate})]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="266" y="-1" width="95" height="20" uuid="d6c0384b-2b5e-4611-a108-87e0924f3abf">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{movementsPerMonth} != null ? $F{movementsPerMonth} : "No tiene"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="361" y="-1" width="95" height="20" uuid="071b2c9c-2d5d-4161-a390-14afa44c1f79">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8a06f252-a07a-49aa-935c-1b6c6579e662"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{costOfMaintenance} != null ? $F{costOfMaintenance} : "No tiene"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band height="17">
+			<textField>
+				<reportElement mode="Opaque" x="0" y="4" width="515" height="13" backcolor="#E6E6E6" uuid="3444da9d-fbab-4c83-a990-fdb197ce408c"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Opaque" x="515" y="4" width="40" height="13" backcolor="#E6E6E6" uuid="027c4ce5-24c7-4ad4-9db8-2cfefa370661"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="0" y="4" width="100" height="13" uuid="8ec92c2a-9030-43ed-ab85-5ce7b1ddb95c"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

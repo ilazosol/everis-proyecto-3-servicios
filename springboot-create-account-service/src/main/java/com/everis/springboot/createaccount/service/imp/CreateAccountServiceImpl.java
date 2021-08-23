@@ -20,7 +20,11 @@ import com.everis.springboot.createaccount.document.CreditDocument;
 import com.everis.springboot.createaccount.document.CurrentAccount;
 import com.everis.springboot.createaccount.document.FixedTermDocument;
 import com.everis.springboot.createaccount.document.SavingAccount;
+import com.everis.springboot.createaccount.exception.ValidatorAccountException;
 import com.everis.springboot.createaccount.service.CreateAccountService;
+import com.everis.springboot.createaccount.util.Validations;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -44,6 +48,9 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 	
 	@Value("${everis.url.gateway}")
 	private String urlGateway;
+	
+	@Autowired
+	private Validations validations;
 
 	@Override
 	public Mono<CreateAccountDocument> findAccountsById(String id) {
@@ -61,180 +68,160 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 				.bodyToMono(ClientDocument.class);
 		
 		
-		return createAccountDao.findByClient(id).collectList().flatMap( accounts -> {
+		return createAccountDao.findByIdClient(id).collectList().flatMap( accounts -> {
 			
 			Mono<ResponseEntity<Map<String,Object>>> res = client.flatMap(c -> {
-				Integer cAhorro = 0;
-				Integer cCorriente = 0;
-				Integer cPlazoFijo = 0;
 				
-				System.out.println(c.toString());
-				
-				if(!account.getAccount_type().equals("Cuenta de Ahorro")  && !account.getAccount_type().equals("Cuenta Corriente") && !account.getAccount_type().equals("Cuenta Plazo Fijo")) {
-					response.put("mensaje", "No se puede crear el tipo de cuenta, los tipos de cuentas solo pueden ser: Cuenta de Ahorro, Cuenta Corriente y Cuenta Plazo Fijo");
-					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-				}
-				
-				if(c.getClient_type().getDescription().equals("Personal") || c.getClient_type().getDescription().equals("VIP")) {
-					for (CreateAccountDocument acc : accounts) {
-						if(acc.getAccount_type().equals("Cuenta de Ahorro")) {
-							cAhorro++;
-						}
-						if(acc.getAccount_type().equals("Cuenta Corriente")) {
-							cCorriente++;
-						}
-						if(acc.getAccount_type().equals("Cuenta Plazo Fijo")) {
-							cPlazoFijo++;
-						}
-						if(account.getAccount_type().equals("Cuenta de Ahorro") && cAhorro>0) {
-							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta de ahorro");
-							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-						}
-						if(account.getAccount_type().equals("Cuenta Corriente") && cCorriente>0) {
-							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta corriente");
-							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-						}
-						if(account.getAccount_type().equals("Cuenta Plazo Fijo") && cPlazoFijo>0) {
-							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta a plazo fijo");
-							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-						}
-					}
+				try {
 					
-				}else if(c.getClient_type().getDescription().equals("Empresarial") || c.getClient_type().getDescription().equals("PYME")) {
-					if(account.getAccount_type().equals("Cuenta de Ahorro")) {
-						response.put("mensaje", "Un usuario empresarial no puede tener cuenta de ahorro");
-						return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-					}
-					if(account.getAccount_type().equals("Cuenta Plazo Fijo")) {
-						response.put("mensaje", "Un usuario empresarial no puede tener cuenta a plazo fijo");
-						return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-					}
-				}else if(!c.getClient_type().getDescription().equals("Empresarial") && !c.getClient_type().getDescription().equals("Personal") &&
-						!c.getClient_type().getDescription().equals("VIP") && !c.getClient_type().getDescription().equals("PYME")) {
-					response.put("mensaje", "Ingreso un tipo de cliente incorrecto");
-					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-				}
-				
-				account.setClient(id);
-				
-				if(account.getAccount_type().equals("Cuenta Plazo Fijo")) {
-					FixedTermDocument fixedTerm = FixedTermDocument.builder()
-							.saldo(account.getMount())
-							.fechaCreacion(date)
-							.idCliente(id)
-							.diaRetiro(diaRetiro)
-							.build();
+					validations.validateAccount(accounts, account, c);
 					
+					account.setIdClient(id);
+					account.setCreationDate(date);
 					
-					webClientBuilder.build().post()
-					.uri(urlGateway+"/api/fixed-term/saveAccount")
-					.body(Mono.just(fixedTerm), FixedTermDocument.class)
-					.retrieve().bodyToMono(FixedTermDocument.class).subscribe();
-				}
-				
-				if(account.getAccount_type().equals("Cuenta Corriente")) {
-					
-					if(c.getClient_type().getDescription().equals("PYME")) {
-						System.out.println("El cliente PYME quiere abrir una cuenta corriente");
-						Map<String, Object> responseEmpty = new HashMap<>();
-						responseEmpty.put("mensaje", "No existen tarjetas de credito para este usuario");
-						return webClientBuilder.build().get()
-								.uri(urlGateway+"/api/credit/getCreditCards/"+id)
-								.retrieve().bodyToMono(CreditDocument.class).flatMap( cre ->{
-										CurrentAccount currentAccount = CurrentAccount.builder()
-												.amountInAccount(account.getMount())
-												.costOfMaintenance(costOfMaintenment)
-												.createAt(date)
-												.clientId(id)
-												.build();
-										
-									
-										webClientBuilder.build().post()
-										.uri(urlGateway+"/api/currentAccount")
-										.body(Mono.just(currentAccount), CurrentAccount.class)
-										.retrieve().bodyToMono(CurrentAccount.class).subscribe();
-										
-										return createAccountDao.save(account).flatMap( p -> {
-											response.put("productSaved", p);
-											response.put("mensaje", "Cuenta registrada con exito");
-											return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
-										});
-									
-								}).defaultIfEmpty(new ResponseEntity<>(responseEmpty, HttpStatus.BAD_GATEWAY));
-					}else {
-						CurrentAccount currentAccount = CurrentAccount.builder()
-								.amountInAccount(account.getMount())
-								.costOfMaintenance(costOfMaintenment)
+					if(account.getAccountType().equals("Cuenta Plazo Fijo")) {
+						FixedTermDocument fixedTerm = FixedTermDocument.builder()
+								.amountInAccount(account.getInitialMount())
 								.createAt(date)
 								.clientId(id)
-								.build();
-						
-					
-						webClientBuilder.build().post()
-						.uri(urlGateway+"/api/currentAccount")
-						.body(Mono.just(currentAccount), CurrentAccount.class)
-						.retrieve().bodyToMono(CurrentAccount.class).subscribe();
-					}
-					
-				}
-				
-				if(account.getAccount_type().equals("Cuenta de Ahorro")) {
-										
-					if(c.getClient_type().getDescription().equals("VIP")) {
-						System.out.println("El cliente vip quiere abrir una cuenta de ahorro");
-						Map<String, Object> responseEmpty = new HashMap<>();
-						responseEmpty.put("mensaje", "No existen tarjetas de credito para este usuario");
-						return webClientBuilder.build().get()
-								.uri(urlGateway+"/api/credit/getCreditCards/"+id)
-								.retrieve().bodyToMono(CreditDocument.class).flatMap( cre ->{
-										SavingAccount savingAccount = SavingAccount.builder()
-												.amountInAccount(account.getMount())
-												.createAt(date)
-												.clientId(id)
-												.movementsPerMonth(movementsPerMonth)
-												.build();
-										
-										webClientBuilder.build().post()
-										.uri(urlGateway+"/api/accountSavings")
-										.body(Mono.just(savingAccount), SavingAccount.class)
-										.retrieve().bodyToMono(SavingAccount.class).subscribe();
-										
-										return createAccountDao.save(account).flatMap( p -> {
-											response.put("productSaved", p);
-											response.put("mensaje", "Cuenta registrada con exito");
-											return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
-										});
-									
-								}).defaultIfEmpty(new ResponseEntity<>(responseEmpty, HttpStatus.BAD_GATEWAY));
-					}else {
-						SavingAccount savingAccount = SavingAccount.builder()
-								.amountInAccount(account.getMount())
-								.createAt(date)
-								.clientId(id)
-								.movementsPerMonth(movementsPerMonth)
+								.diaRetiro(diaRetiro)
 								.build();
 						
 						
-						webClientBuilder.build().post()
-						.uri(urlGateway+"/api/accountSavings")
-						.body(Mono.just(savingAccount), SavingAccount.class)
-						.retrieve().bodyToMono(SavingAccount.class).subscribe();
+						return webClientBuilder.build().post()
+						.uri(urlGateway+"/api/fixed-term/saveAccount")
+						.body(Mono.just(fixedTerm), FixedTermDocument.class)
+						.retrieve().bodyToMono(FixedTermDocument.class).flatMap( ft -> {
+							account.setIdSavedAccount(ft.getId());
+							return createAccountDao.save(account).flatMap( p -> {
+								response.put("productSaved", p);
+								response.put("mensaje", "Cuenta registrada con exito");
+								return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
+							});
+						});
 					}
-		
+					
+					if(account.getAccountType().equals("Cuenta Corriente")) {
+						
+						if(c.getClient_type().getDescription().equals("PYME")) {
+							System.out.println("El cliente PYME quiere abrir una cuenta corriente");
+							Map<String, Object> responseEmpty = new HashMap<>();
+							responseEmpty.put("mensaje", "No existen tarjetas de credito para este usuario");
+							return webClientBuilder.build().get()
+									.uri(urlGateway+"/api/credit/getCreditCards/"+id)
+									.retrieve().bodyToMono(CreditDocument.class).flatMap( cre ->{
+											CurrentAccount currentAccount = CurrentAccount.builder()
+													.amountInAccount(account.getInitialMount())
+													.costOfMaintenance(costOfMaintenment)
+													.createAt(date)
+													.clientId(id)
+													.build();
+											
+										
+											return webClientBuilder.build().post()
+											.uri(urlGateway+"/api/currentAccount")
+											.body(Mono.just(currentAccount), CurrentAccount.class)
+											.retrieve().bodyToMono(CurrentAccount.class).flatMap( cc -> {
+												account.setIdSavedAccount(cc.getId());
+												return createAccountDao.save(account).flatMap( p -> {
+													response.put("productSaved", p);
+													response.put("mensaje", "Cuenta registrada con exito");
+													return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
+												});
+											});
+									}).defaultIfEmpty(new ResponseEntity<>(responseEmpty, HttpStatus.BAD_GATEWAY));
+						}else {
+							CurrentAccount currentAccount = CurrentAccount.builder()
+									.amountInAccount(account.getInitialMount())
+									.costOfMaintenance(costOfMaintenment)
+									.createAt(date)
+									.clientId(id)
+									.build();
+							
+						
+							return webClientBuilder.build().post()
+							.uri(urlGateway+"/api/currentAccount")
+							.body(Mono.just(currentAccount), CurrentAccount.class)
+							.retrieve().bodyToMono(CurrentAccount.class).flatMap( cc -> {
+								account.setIdSavedAccount(cc.getId());
+								return createAccountDao.save(account).flatMap( p -> {
+									response.put("productSaved", p);
+									response.put("mensaje", "Cuenta registrada con exito");
+									return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
+								});
+							});
+						}
+						
+					}
+					
+					if(account.getAccountType().equals("Cuenta de Ahorro")) {
+											
+						if(c.getClient_type().getDescription().equals("VIP")) {
+							System.out.println("El cliente vip quiere abrir una cuenta de ahorro");
+							Map<String, Object> responseEmpty = new HashMap<>();
+							responseEmpty.put("mensaje", "No existen tarjetas de credito para este usuario");
+							return webClientBuilder.build().get()
+									.uri(urlGateway+"/api/credit/getCreditCards/"+id)
+									.retrieve().bodyToMono(CreditDocument.class).flatMap( cre ->{
+											SavingAccount savingAccount = SavingAccount.builder()
+													.amountInAccount(account.getInitialMount())
+													.createAt(date)
+													.clientId(id)
+													.movementsPerMonth(movementsPerMonth)
+													.build();
+											
+											return webClientBuilder.build().post()
+											.uri(urlGateway+"/api/accountSavings")
+											.body(Mono.just(savingAccount), SavingAccount.class)
+											.retrieve().bodyToMono(SavingAccount.class).flatMap( sa -> {
+												account.setIdSavedAccount(sa.getId());
+												return createAccountDao.save(account).flatMap( p -> {
+													response.put("productSaved", p);
+													response.put("mensaje", "Cuenta registrada con exito");
+													return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
+												});
+											});
+											
+									}).defaultIfEmpty(new ResponseEntity<>(responseEmpty, HttpStatus.BAD_GATEWAY));
+						}else {
+							SavingAccount savingAccount = SavingAccount.builder()
+									.amountInAccount(account.getInitialMount())
+									.createAt(date)
+									.clientId(id)
+									.movementsPerMonth(movementsPerMonth)
+									.build();
+							
+							
+							return webClientBuilder.build().post()
+							.uri(urlGateway+"/api/accountSavings")
+							.body(Mono.just(savingAccount), SavingAccount.class)
+							.retrieve().bodyToMono(SavingAccount.class).flatMap( sa -> {
+								account.setIdSavedAccount(sa.getId());
+								return createAccountDao.save(account).flatMap( p -> {
+									response.put("productSaved", p);
+									response.put("mensaje", "Cuenta registrada con exito");
+									return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
+								});
+							});
+						}
+			
+					}
+					
+					response.put("mensaje", "Tipo de cuenta ingresado incorrecta");
+					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK));
+				
+				} catch (ValidatorAccountException e) {
+					response.put("mensaje", e.getMensajeValidacion());
+					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK));
 				}
-
-				
-				return createAccountDao.save(account).flatMap( p -> {
-					response.put("productSaved", p);
-					response.put("mensaje", "Cuenta registrada con exito");
-					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
-				});
-				
 			});
-			
-			
 			return res;
 		});
+	}
+
+	@Override
+	public Flux<CreateAccountDocument> findAccountsByClient(String idClient) {
+		return createAccountDao.findByIdClient(idClient);
 	}
 
 }

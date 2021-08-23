@@ -1,6 +1,7 @@
 package com.everis.banca.app.savingAccount.services.interfaces;
 
 
+import java.text.ParseException;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -26,4 +27,9 @@ public interface SavingAccountService {
 	Mono<ResponseEntity<Map<String, Object>>> retirar(String idCuenta, Double cantidad);
 
 	Mono<ResponseEntity<Map<String, Object>>> depositar(String idCuenta, Double cantidad);
+
+	Flux<SavingAccount> getProductByDates(String fechaInicio, String fechaFin) throws ParseException;
+
+	Mono<SavingAccount> getSavingAccount(String idAccount);
+
 }

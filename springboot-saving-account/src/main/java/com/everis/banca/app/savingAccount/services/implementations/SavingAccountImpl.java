@@ -2,6 +2,7 @@ package com.everis.banca.app.savingAccount.services.implementations;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -70,6 +71,7 @@ public class SavingAccountImpl implements SavingAccountService {
 	@Override
 	public Mono<ResponseEntity<Map<String,Object>>> depositar(String idCuenta,Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
+		Date date = Calendar.getInstance().getTime();
 		//TODO: Change this to make general "localhost"
 		return webClientBuilder.build().get()
 			    .uri(urlGateway+"/api/movement/numberOfMovements?idCuenta="+idCuenta)
@@ -80,7 +82,6 @@ public class SavingAccountImpl implements SavingAccountService {
 					c.setAmountInAccount(c.getAmountInAccount() + cantidad);
 					return savingAccountDao.save(c).flatMap(acc -> {
 							
-							Date date = Calendar.getInstance().getTime();
 							MovementDocument movement = MovementDocument.builder()
 									.tipoMovimiento("Deposito")
 									.tipoProducto("Cuenta Ahorros")
@@ -109,11 +110,11 @@ public class SavingAccountImpl implements SavingAccountService {
 					c.setAmountInAccount(c.getAmountInAccount() + cantidad -comissionPerMovement);
 					return savingAccountDao.save(c).flatMap(acc -> {
 							
-							Date date = Calendar.getInstance().getTime();
+							
 							MovementDocument movement = MovementDocument.builder()
 									.tipoMovimiento("Deposito")
 									.tipoProducto("Cuenta Ahorros")
-									.fechaMovimiento(new Timestamp(date.getTime()))
+									.fechaMovimiento(date)
 									.idCuenta(idCuenta)
 									.comission(comissionPerMovement)
 									.idCliente(acc.getClientId())
@@ -144,8 +145,7 @@ public class SavingAccountImpl implements SavingAccountService {
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> retirar(String idCuenta, Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
-		Calendar calendar = Calendar.getInstance();
-		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		Date date = Calendar.getInstance().getTime();
 		
 		return savingAccountDao.findById(idCuenta).flatMap( c -> {
 			
@@ -160,11 +160,11 @@ public class SavingAccountImpl implements SavingAccountService {
 					c.setAmountInAccount(c.getAmountInAccount() - cantidad - comissionPerMovement);
 					return savingAccountDao.save(c).flatMap(acc -> {
 						
-						Date date = Calendar.getInstance().getTime();
+						
 						MovementDocument movement = MovementDocument.builder()
 								.tipoMovimiento("Retiro")
 								.tipoProducto("Cuenta Corriente")
-								.fechaMovimiento(new Timestamp(date.getTime()))
+								.fechaMovimiento(date)
 								.comission(comissionPerMovement)
 								.idCuenta(idCuenta)
 								.idCliente(acc.getClientId())
@@ -197,6 +197,18 @@ public class SavingAccountImpl implements SavingAccountService {
 			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 			
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	}
+
+	@Override
+	public Flux<SavingAccount> getProductByDates(String fechaInicio, String fechaFin) throws ParseException {
+		Date dateInicio = new SimpleDateFormat("dd-MM-yyyy").parse(fechaInicio);
+		Date dateFin = new SimpleDateFormat("dd-MM-yyyy").parse(fechaFin);
+		return savingAccountDao.findProductsByDate(dateInicio,dateFin);
+	}
+
+	@Override
+	public Mono<SavingAccount> getSavingAccount(String idAccount) {
+		return savingAccountDao.findById(idAccount);
 	}
 	
 

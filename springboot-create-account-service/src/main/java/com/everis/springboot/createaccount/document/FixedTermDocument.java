@@ -2,6 +2,8 @@ package com.everis.springboot.createaccount.document;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.Id;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,13 +15,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FixedTermDocument {
 	
+	@Id
 	private String id;
-	
-	private Double saldo;
-	
-	private Date fechaCreacion;
-	
-	private String idCliente;
-	
+	private Double amountInAccount;
+	private String clientId;
 	private Integer diaRetiro;
+	private String type;
+	private Date modifiedAt ;
+	private Date createAt;
 }

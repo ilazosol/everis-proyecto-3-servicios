@@ -1,14 +1,10 @@
 package com.everis.springboot.createaccount.document;
 
-
-
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,9 +14,8 @@ import lombok.Builder;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CurrentAccount implements Serializable  {
-	
-	
 	private String id;
 	private double amountInAccount;
 	private String clientId;
@@ -29,4 +24,6 @@ public class CurrentAccount implements Serializable  {
 	private String type;
 	private Date modifiedAt ;
 	private Date createAt;
+	
+	private static final long serialVersionUID = 1L;
 }

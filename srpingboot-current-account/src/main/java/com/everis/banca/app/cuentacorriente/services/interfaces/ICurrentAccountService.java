@@ -2,6 +2,7 @@ package com.everis.banca.app.cuentacorriente.services.interfaces;
 
 
 
+import java.text.ParseException;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,10 @@ public interface ICurrentAccountService {
 	Mono<ResponseEntity<Map<String,Object>>> retirar(String idCuenta,Double cantidad);
 	
 	Mono<ResponseEntity<Map<String,Object>>> consultarSaldo(String idCliente);
+
+	Flux<CurrentAccount> getProductByDates(String fechaInicio, String fechaFin) throws ParseException;
+
+	Mono<CurrentAccount> getCurrentAccount(String idAccount);
 
 	 
 

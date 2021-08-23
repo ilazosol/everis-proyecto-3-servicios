@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import com.everis.springboot.createaccount.document.CreateAccountDocument;
 import com.everis.springboot.createaccount.service.CreateAccountService;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RefreshScope
@@ -36,6 +37,11 @@ public class CreateAccountController {
 			response.put("account", a);
 			return Mono.just(new ResponseEntity<>(response,HttpStatus.OK));
 		});
+	}
+	
+	@GetMapping("/findAccounts/client/{idClient}")
+	public Flux<CreateAccountDocument> getProductByClient(@PathVariable("idClient") String idClient) {
+		return accountService.findAccountsByClient(idClient);
 	}
 	
 

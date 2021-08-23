@@ -1,7 +1,5 @@
 package com.everis.springboot.report.controller;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +16,35 @@ public class ReportController {
 	@Autowired
 	private ReportService reportService;
 
-	@GetMapping("/reportComission/{idCuenta}/{fechaInicio}/{fechaFin}")
-	public Mono<ResponseEntity<?>> getReportComission(@PathVariable String idCuenta, @PathVariable String fechaInicio, @PathVariable String fechaFin) throws IOException{
+	@GetMapping("/comission/{idCuenta}/{fechaInicio}/{fechaFin}")
+	public Mono<ResponseEntity<?>> getReportComission(@PathVariable String idCuenta, @PathVariable String fechaInicio, @PathVariable String fechaFin){
 		System.out.println("Entro a imprimir el pdf de comisiones");
 		
 		return reportService.getComissionReport(idCuenta, fechaInicio, fechaFin);
+		
+	}
+	
+	@GetMapping("/products/{idClient}")
+	public Mono<ResponseEntity<?>> getProductsperClientReport(@PathVariable String idClient ){
+		System.out.println("Entro a imprimir el pdf de productos por cliente");
+		
+		return reportService.getProductsperClientReport(idClient);
+		
+	}
+	
+	@GetMapping("/product/{typeProduct}/{fechaInicio}/{fechaFin}")
+	public Mono<ResponseEntity<?>> getReportGeneralProduct(@PathVariable String typeProduct,@PathVariable String fechaInicio, @PathVariable String fechaFin ){
+		System.out.println("Entro a imprimir el pdf general de un producto");
+		
+		return reportService.getReportGeneralProduct(typeProduct,fechaInicio,fechaFin);
+		
+	}
+	
+	@GetMapping("/tenLastMovementCreditDebit/{idClient}")
+	public Mono<ResponseEntity<?>> getResportLast10CreditDebit(@PathVariable String idClient ){
+		System.out.println("Entro a imprimir el pdf general de un producto");
+		
+		return reportService.getResportLast10CreditDebit(idClient);
 		
 	}
 }

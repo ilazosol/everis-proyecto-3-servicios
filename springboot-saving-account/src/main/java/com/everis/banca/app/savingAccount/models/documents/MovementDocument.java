@@ -1,6 +1,6 @@
 package com.everis.banca.app.savingAccount.models.documents;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class MovementDocument {
 	
 	private String tipoProducto;
 	
-	private Timestamp fechaMovimiento;
+	private Date fechaMovimiento;
 	private double comission;
 	private String idCuenta;
 	

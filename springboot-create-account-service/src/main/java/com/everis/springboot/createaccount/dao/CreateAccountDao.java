@@ -8,6 +8,6 @@ import reactor.core.publisher.Flux;
 
 public interface CreateAccountDao extends ReactiveMongoRepository<CreateAccountDocument, String> {
 	
-	Flux<CreateAccountDocument> findByClient(String client);
+	Flux<CreateAccountDocument> findByIdClient(String idClient);
 
 }

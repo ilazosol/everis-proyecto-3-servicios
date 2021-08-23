@@ -2,6 +2,7 @@ package com.everis.banca.app.savingAccount.controllers;
 
 
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.everis.banca.app.savingAccount.models.documents.SavingAccount;
@@ -36,6 +36,11 @@ public class SavingAccountController {
 				return currentAccount;
 			});
 			return currentAccounts;
+		}
+		
+		@GetMapping("/getAccount/{idAccount}")
+		public Mono<SavingAccount> getSavingAccount(@PathVariable String idAccount) {
+			return savingAccountService.getSavingAccount(idAccount);
 		}
 		
 		@PostMapping()
@@ -115,6 +120,13 @@ public class SavingAccountController {
 			public Mono<ResponseEntity<Map<String,Object>>> getBalance(@PathVariable("id") String id) {
 				return savingAccountService.consultarSaldo(id);
 			}
+			
+			
+			@GetMapping("/getProductByDates/{fechaInicio}/{fechaFin}")
+			public Flux<SavingAccount> getProductByDates(@PathVariable String fechaInicio, @PathVariable String fechaFin) throws ParseException {
+				return savingAccountService.getProductByDates(fechaInicio, fechaFin);
+			}
+			
 			
 		}
 	

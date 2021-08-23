@@ -1,6 +1,7 @@
 package com.everis.banca.app.cuentacorriente.services.implementations;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -239,6 +240,18 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 			
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	}
+
+	@Override
+	public Flux<CurrentAccount> getProductByDates(String fechaInicio, String fechaFin) throws ParseException {
+		Date dateInicio = new SimpleDateFormat("dd-MM-yyyy").parse(fechaInicio);
+		Date dateFin = new SimpleDateFormat("dd-MM-yyyy").parse(fechaFin);
+		return currentAccountDao.findProductsByDate(dateInicio,dateFin);
+	}
+
+	@Override
+	public Mono<CurrentAccount> getCurrentAccount(String idAccount) {
+		return currentAccountDao.findById(idAccount);
 	}
 	
 

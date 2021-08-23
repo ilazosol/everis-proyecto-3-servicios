@@ -2,6 +2,7 @@ package com.everis.banca.app.cuentacorriente.controllers;
 
 
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,11 @@ public class CurrentAccountController {
 
 		@Autowired
 		private ICurrentAccountService currentAccountService;
+		
+		@GetMapping("/getAccount/{idAccount}")
+		public Mono<CurrentAccount> getCurrentAccount(@PathVariable String idAccount) {
+			return currentAccountService.getCurrentAccount(idAccount);
+		}
 		
 		@GetMapping()
 		public Flux<CurrentAccount> getAllCurrentAccount() {
@@ -116,6 +122,11 @@ public class CurrentAccountController {
 			@GetMapping("/getBalance/{id}")
 			public Mono<ResponseEntity<Map<String,Object>>> getBalance(@PathVariable("id") String id) {
 				return currentAccountService.consultarSaldo(id);
+			}
+			
+			@GetMapping("/getProductByDates/{fechaInicio}/{fechaFin}")
+			public Flux<CurrentAccount> getProductByDates(@PathVariable String fechaInicio, @PathVariable String fechaFin) throws ParseException {
+				return currentAccountService.getProductByDates(fechaInicio, fechaFin);
 			}
 
 			

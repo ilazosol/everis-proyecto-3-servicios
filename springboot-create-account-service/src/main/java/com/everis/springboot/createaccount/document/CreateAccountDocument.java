@@ -1,5 +1,7 @@
 package com.everis.springboot.createaccount.document;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,10 +18,14 @@ public class CreateAccountDocument {
 	@Id
 	private String id;
 	
-	private String account_type;
+	private String idSavedAccount;
 	
-	private String client;
+	private String idClient;
 	
-	private Double mount;
+	private String accountType;
+	
+	private Date creationDate;
+	
+	private Double initialMount;
 	
 }

@@ -14,15 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document(collection = "fixed_terms")
 public class FixedTermDocument {
-	
 	@Id
 	private String id;
-	
-	private Double saldo;
-	
-	private Date fechaCreacion;
-	
-	private String idCliente;
-	
+	private Double amountInAccount;
+	private String clientId;
 	private Integer diaRetiro;
+	private String type;
+	private Date modifiedAt ;
+	private Date createAt;
 }

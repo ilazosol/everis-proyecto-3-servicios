@@ -43,7 +43,7 @@ public class FixedTermServiceImpl implements FixedTermService {
 		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Lima"));	
 		
 		return fixedTermDao.findById(idCuenta).flatMap( c -> {
-			c.setSaldo(c.getSaldo() + cantidad);
+			c.setAmountInAccount((c.getAmountInAccount() + cantidad));
 			
 			if(calendar.get(Calendar.DAY_OF_MONTH) == c.getDiaRetiro()) {
 				
@@ -54,7 +54,7 @@ public class FixedTermServiceImpl implements FixedTermService {
 							.tipoProducto("Cuenta Plazo Fijo")
 							.fechaMovimiento(date)
 							.idCuenta(idCuenta)
-							.idCliente(acc.getIdCliente())
+							.idCliente(acc.getClientId())
 							.build();
 					
 					webClientBuilder.build().post()
@@ -81,14 +81,14 @@ public class FixedTermServiceImpl implements FixedTermService {
 		return fixedTermDao.findById(idCuenta).flatMap( c -> {
 			
 			if(calendar.get(Calendar.DAY_OF_MONTH) == c.getDiaRetiro()) {
-				if(c.getSaldo() - cantidad < 0) {
+				if(c.getAmountInAccount() - cantidad < 0) {
 					response.put("mensaje", "No puede realizar este retiro ya que no cuenta con el saldo suficiente");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 				}else {
 					
 					
 					
-					c.setSaldo(c.getSaldo() - cantidad);
+					c.setAmountInAccount(c.getAmountInAccount() - cantidad);
 					return fixedTermDao.save(c).flatMap(acc -> {
 						
 						Date date = Calendar.getInstance().getTime();
@@ -97,7 +97,7 @@ public class FixedTermServiceImpl implements FixedTermService {
 								.tipoProducto("Cuenta Plazo Fijo")
 								.fechaMovimiento(date)
 								.idCuenta(idCuenta)
-								.idCliente(acc.getIdCliente())
+								.idCliente(acc.getClientId())
 								.build();
 						
 						webClientBuilder.build().post()
@@ -121,13 +121,18 @@ public class FixedTermServiceImpl implements FixedTermService {
 	public Mono<ResponseEntity<Map<String, Object>>> consultarSaldo(String idCliente) {
 		Map<String, Object> response = new HashMap<>();
 		
-		return fixedTermDao.findByIdCliente(idCliente).flatMap( c -> {
+		return fixedTermDao.findByClientId(idCliente).flatMap( c -> {
 			
 			
-			response.put("mensaje", "El saldo de la cuenta es: S/."+c.getSaldo());
+			response.put("mensaje", "El saldo de la cuenta es: S/."+c.getAmountInAccount());
 			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 			
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	}
+
+	@Override
+	public Mono<FixedTermDocument> getFixedAccount(String idAccount) {
+		return fixedTermDao.findById(idAccount);
 	}
 	
 	
