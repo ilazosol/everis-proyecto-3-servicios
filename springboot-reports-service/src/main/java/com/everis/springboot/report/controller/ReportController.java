@@ -40,11 +40,9 @@ public class ReportController {
 		
 	}
 	
-	@GetMapping("/tenLastMovementCreditDebit/{idClient}")
-	public Mono<ResponseEntity<?>> getResportLast10CreditDebit(@PathVariable String idClient ){
+	@GetMapping("/tenLastMovementCreditDebit")
+	public Mono<ResponseEntity<?>> getResportLast10CreditDebit(){
 		System.out.println("Entro a imprimir el pdf general de un producto");
-		
-		return reportService.getResportLast10CreditDebit(idClient);
-		
+		return reportService.getResportLast10CreditDebit();
 	}
 }

@@ -96,7 +96,6 @@ public class ReportServiceImpl implements ReportService {
 		.uri(urlGateway+"/api/account/findAccounts/client/"+idClient)
 		.retrieve()
 		.bodyToFlux(AccountDocument.class).doOnNext(account ->{
-			
 			AccountDocument acc = new AccountDocument();
 			acc.setAccountType(account.getAccountType());
 			acc.setCreationDate(account.getCreationDate());
@@ -181,9 +180,45 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 	@Override
-	public Mono<ResponseEntity<?>> getResportLast10CreditDebit(String idClient) {
-		// TODO Auto-generated method stub
-		return null;
+	public Mono<ResponseEntity<?>> getResportLast10CreditDebit() {
+		System.out.println("Entro a imprimir el pdf de 10 ultimos movimientos credit debit");
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		List<MovementDocument> movements = new ArrayList<>();
+		
+		return webClientBuilder.build().get()
+		.uri(urlGateway+"/api/movement/getLast10CreditDebit")
+		.retrieve()
+		.bodyToFlux(MovementDocument.class).doOnNext(movement ->{
+			System.out.println(movement);
+			movements.add(movement);
+			
+		}).collectList().flatMap( movement -> {
+						
+			try {				
+				File file = ResourceUtils.getFile("classpath:reportlast10creditdebit.jrxml");
+				
+				JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+				
+				JRBeanCollectionDataSource beanDataSource = new JRBeanCollectionDataSource(movements);
+				
+				JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, beanDataSource);
+				
+				JasperExportManager.exportReportToPdfStream(jasperPrint, out);
+				
+				byte[] targetArray = ByteStreams.toByteArray(new ByteArrayInputStream(out.toByteArray()));
+				
+				ByteArrayResource resource = new ByteArrayResource(targetArray);
+				
+				return Mono.just(ResponseEntity.ok()
+						.header("Content-Disposition", "attachment;filename=Last_10_Credit_Debit_Report.pdf")
+						.contentType(MediaType.parseMediaType("application/octet-stream"))
+						.body(resource));
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error al generar reporte en PDF");
+			}
+		});	
 	}
 
 }

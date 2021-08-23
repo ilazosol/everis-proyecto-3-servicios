@@ -22,7 +22,7 @@ public interface SavingAccountService {
 
 	Mono<Void> deleteById(String idSavingAccount);
 
-	Mono<ResponseEntity<Map<String, Object>>> consultarSaldo(String idAccount);
+	Mono<String> consultarSaldo(String idAccount);
 
 	Mono<ResponseEntity<Map<String, Object>>> retirar(String idCuenta, Double cantidad);
 

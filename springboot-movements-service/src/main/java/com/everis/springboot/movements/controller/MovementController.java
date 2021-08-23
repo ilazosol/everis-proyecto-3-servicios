@@ -40,6 +40,11 @@ public class MovementController {
 
 		return movementService.getComissionsByAccount(idCuenta,fechaInicio,fechaFin).filter( m ->  m.getComission() != 0.0);
 	}
+	
+	@GetMapping("/getLast10CreditDebit")
+	private Flux<MovementDocument> getLast10CreditDebit() throws ParseException{
+		return movementService.getLast10CreditDebit();
+	}
 
 
 }

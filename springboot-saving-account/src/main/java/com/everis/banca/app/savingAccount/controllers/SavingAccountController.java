@@ -117,7 +117,7 @@ public class SavingAccountController {
 			}
 			
 			@GetMapping("/getBalance/{id}")
-			public Mono<ResponseEntity<Map<String,Object>>> getBalance(@PathVariable("id") String id) {
+			public Mono<String> getBalance(@PathVariable("id") String id) {
 				return savingAccountService.consultarSaldo(id);
 			}
 			

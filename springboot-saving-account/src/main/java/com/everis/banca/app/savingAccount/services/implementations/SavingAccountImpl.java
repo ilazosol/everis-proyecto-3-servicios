@@ -185,16 +185,10 @@ public class SavingAccountImpl implements SavingAccountService {
 	
 
 	@Override
-	public Mono<ResponseEntity<Map<String, Object>>> consultarSaldo(String idAccount) {
-		Map<String, Object> response = new HashMap<>();
-		
+	public Mono<String> consultarSaldo(String idAccount) {		
 		return savingAccountDao.findById(idAccount).flatMap( c -> {
-			
-			
-			response.put("mensaje", "El saldo de la cuenta es: S/."+c.getAmountInAccount());
-			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-			
-		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+			return Mono.just("El saldo de la cuenta es: S/."+c.getAmountInAccount());
+		}).defaultIfEmpty("No existe la cuenta de ahorros especificada");
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.everis.springboot.movements.dao.MovementDao;
@@ -60,6 +60,13 @@ public class MovementServiceImpl implements MovementService {
 		Date dateInicio = new SimpleDateFormat("dd-MM-yyyy").parse(fechaInicio);
 		Date dateFin = new SimpleDateFormat("dd-MM-yyyy").parse(fechaFin);
 		return movementDao.findMovementDocumentByFechaMovimientoAndIdCliente(dateInicio, dateFin, idCuenta);
+	}
+
+	@Override
+	public Flux<MovementDocument> getLast10CreditDebit() {
+		//PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.ASC, "fechaMovimiento"));
+		Sort sort = Sort.by(Sort.Direction.DESC, "fechaMovimiento");
+		return movementDao.findLast10MovementDebitCredit(sort).take(10);
 	}
 
 }

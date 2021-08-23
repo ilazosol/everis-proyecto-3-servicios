@@ -30,7 +30,7 @@ public interface ICurrentAccountService {
 	
 	Mono<ResponseEntity<Map<String,Object>>> retirar(String idCuenta,Double cantidad);
 	
-	Mono<ResponseEntity<Map<String,Object>>> consultarSaldo(String idCliente);
+	Mono<String> consultarSaldo(String idCliente);
 
 	Flux<CurrentAccount> getProductByDates(String fechaInicio, String fechaFin) throws ParseException;
 

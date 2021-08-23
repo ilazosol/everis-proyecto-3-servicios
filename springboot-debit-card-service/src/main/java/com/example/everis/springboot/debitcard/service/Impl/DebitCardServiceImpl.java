@@ -222,4 +222,41 @@ public class DebitCardServiceImpl implements DebitCardService {
 		
 		
 	}
+
+	@Override
+	public Mono<ResponseEntity<Map<String, Object>>> consultBalanceDebitCard(String idDebitCard) {
+		Map<String, Object> response = new HashMap<>();
+		
+		return debitCardDao.findById(idDebitCard).flatMap( debit -> {
+			
+			AccountDocument account = debit.getAsociatedAccounts()
+												.stream()
+												.filter(a -> a.getPrincipal() == true)
+												.collect(Collectors.toList())
+												.get(0);
+			
+			String typeUrl = account.getTypeAccount().equals("Cuenta Corriente") 
+					? "currentAccount" 
+					: account.getTypeAccount().equals("Cuenta de Ahorro") 
+					? "accountSavings" 
+					: account.getTypeAccount().equals("Cuenta Plazo Fijo")
+					? "fixed-term"
+					: "";
+			
+			return webClientBuilder.build().get()
+			.uri(urlGateway+"/api/"+typeUrl+"/getBalance/"+account.getIdAccount())
+			.retrieve().bodyToMono(String.class).flatMap( msg -> {
+				response.put("mensaje", msg);
+				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
+			});
+			
+		});
+	}
+	
+	
+	
+	
+	
+	
+	
 }

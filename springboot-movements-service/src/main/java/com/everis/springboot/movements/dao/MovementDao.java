@@ -1,8 +1,8 @@
 package com.everis.springboot.movements.dao;
 
 import java.util.Date;
-import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
@@ -12,8 +12,11 @@ import reactor.core.publisher.Flux;
 
 public interface MovementDao extends ReactiveMongoRepository<MovementDocument, String> {
 	
-	public Flux<MovementDocument> findByIdCuenta(String idCuenta);
+	Flux<MovementDocument> findByIdCuenta(String idCuenta);
 	
 	@Query(value = "{'fechaMovimiento':{ $gte: ?0, $lte: ?1}, 'idCuenta': ?2}")
-	public Flux<MovementDocument> findMovementDocumentByFechaMovimientoAndIdCliente(Date fechaInicio, Date fechaFin, String idCuenta);
+	Flux<MovementDocument> findMovementDocumentByFechaMovimientoAndIdCliente(Date fechaInicio, Date fechaFin, String idCuenta);
+
+	@Query(value = "{'tipoMovimiento': 'Pago Tarjeta Debito' }")
+	Flux<MovementDocument> findLast10MovementDebitCredit(Sort sort);
 }

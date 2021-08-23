@@ -118,16 +118,10 @@ public class FixedTermServiceImpl implements FixedTermService {
 	}
 
 	@Override
-	public Mono<ResponseEntity<Map<String, Object>>> consultarSaldo(String idCliente) {
-		Map<String, Object> response = new HashMap<>();
-		
-		return fixedTermDao.findByClientId(idCliente).flatMap( c -> {
-			
-			
-			response.put("mensaje", "El saldo de la cuenta es: S/."+c.getAmountInAccount());
-			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-			
-		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	public Mono<String> consultarSaldo(String idAccount) {
+		return fixedTermDao.findById(idAccount).flatMap( c -> {
+			return Mono.just("El saldo de la cuenta es: S/."+c.getAmountInAccount());
+		}).defaultIfEmpty("No existe la cuenta a plazo fijo para el cliente dado");
 	}
 
 	@Override

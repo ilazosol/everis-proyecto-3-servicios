@@ -225,16 +225,11 @@ public class CurrentAccountImpl implements ICurrentAccountService {
 	
 
 	@Override
-	public Mono<ResponseEntity<Map<String, Object>>> consultarSaldo(String idAccount) {
-		Map<String, Object> response = new HashMap<>();
-		
+	public Mono<String> consultarSaldo(String idAccount) {		
 		return currentAccountDao.findById(idAccount).flatMap( c -> {
+			return Mono.just("El saldo de la cuenta es: S/."+c.getAmountInAccount());
 			
-			
-			response.put("mensaje", "El saldo de la cuenta es: S/."+c.getAmountInAccount());
-			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-			
-		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+		}).defaultIfEmpty("No existe la cuenta corriente especificada");
 	}
 
 	@Override

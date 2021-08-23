@@ -17,4 +17,6 @@ public interface DebitCardService {
 
 	Mono<ResponseEntity<Map<String, Object>>> payWithAccount(String idDebitCard, Double amount);
 
+	Mono<ResponseEntity<Map<String, Object>>> consultBalanceDebitCard(String idDebitCard);
+
 }

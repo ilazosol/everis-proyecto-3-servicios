@@ -47,7 +47,7 @@ public class FixedTermController {
 	}
 	
 	@GetMapping("/getBalance/{id}")
-	public Mono<ResponseEntity<Map<String,Object>>> getBalance(@PathVariable("id") String id) {
+	public Mono<String> getBalance(@PathVariable("id") String id) {
 		return fixedTermService.consultarSaldo(id);
 	}
 	
