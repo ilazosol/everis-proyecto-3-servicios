@@ -17,14 +17,15 @@ public class Validations {
 		Integer cPlazoFijo = 0;
 		
 		String mensajeValidacion = null;
-		
+		System.out.println("Entro a la validacion de la cuenta");
 		
 		if(!account.getAccountType().equals("Cuenta de Ahorro")  && !account.getAccountType().equals("Cuenta Corriente") && !account.getAccountType().equals("Cuenta Plazo Fijo")) {
 			mensajeValidacion = "No se puede crear el tipo de cuenta, los tipos de cuentas solo pueden ser: Cuenta de Ahorro, Cuenta Corriente y Cuenta Plazo Fijo";
+			System.out.println(mensajeValidacion);
 			throw new ValidatorAccountException(mensajeValidacion);
 		}
 		
-		if(c.getClient_type().getDescription().equals("Personal") || c.getClient_type().getDescription().equals("VIP")) {
+		if(c.getClientType().equals("Personal") || c.getClientType().equals("VIP")) {
 			for (CreateAccountDocument acc : accounts) {
 				if(acc.getAccountType().equals("Cuenta de Ahorro")) {
 					cAhorro++;
@@ -49,7 +50,7 @@ public class Validations {
 				}
 			}
 			
-		}else if(c.getClient_type().getDescription().equals("Empresarial") || c.getClient_type().getDescription().equals("PYME")) {
+		}else if(c.getClientType().equals("Empresarial") || c.getClientType().equals("PYME")) {
 			if(account.getAccountType().equals("Cuenta de Ahorro")) {
 				mensajeValidacion = "Un usuario empresarial no puede tener cuenta de ahorro";
 				throw new ValidatorAccountException(mensajeValidacion);
@@ -58,8 +59,8 @@ public class Validations {
 				mensajeValidacion = "Un usuario empresarial no puede tener cuenta a plazo fijo";
 				throw new ValidatorAccountException(mensajeValidacion);
 			}
-		}else if(!c.getClient_type().getDescription().equals("Empresarial") && !c.getClient_type().getDescription().equals("Personal") &&
-				!c.getClient_type().getDescription().equals("VIP") && !c.getClient_type().getDescription().equals("PYME")) {
+		}else if(!c.getClientType().equals("Empresarial") && !c.getClientType().equals("Personal") &&
+				!c.getClientType().equals("VIP") && !c.getClientType().equals("PYME")) {
 			mensajeValidacion = "Ingreso un tipo de cliente incorrecto";
 			throw new ValidatorAccountException(mensajeValidacion);
 		}

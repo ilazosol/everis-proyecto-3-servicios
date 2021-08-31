@@ -2,6 +2,7 @@ package com.everis.springboot.createaccount.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 import javax.validation.Valid;
 
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.everis.springboot.createaccount.document.CreateAccountDocument;
 import com.everis.springboot.createaccount.service.CreateAccountService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,10 +27,17 @@ public class CreateAccountController {
 	@Autowired
 	private CreateAccountService accountService;
 	
-	@PostMapping("/saveAccount/{id}")
-	public Mono<ResponseEntity<Map<String,Object>>> saveAccount(@PathVariable String id,@Valid @RequestBody CreateAccountDocument document){
+	@Autowired
+	private BlockingQueue<Map<String, String>> unbounded;
+	
+	@PostMapping("/saveAccount")
+	public void saveAccount(@Valid @RequestBody CreateAccountDocument document) throws JsonProcessingException{
 		System.out.println("Entro al metodo guardar cuenta");
-		return accountService.saveAccount(id,document);
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, String> sendMap = new HashMap<>();
+		sendMap.put("account", mapper.writeValueAsString(document));
+		sendMap.put("idClient", document.getIdClient());
+		unbounded.offer(sendMap);
 	}
 
 	@GetMapping("/findAccount/{id}")

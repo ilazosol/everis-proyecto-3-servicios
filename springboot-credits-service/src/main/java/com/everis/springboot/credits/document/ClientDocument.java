@@ -1,9 +1,5 @@
 package com.everis.springboot.credits.document;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,16 +11,22 @@ public class ClientDocument {
 
 	private String id;
 	
-	private String first_name;
+	private String firstName;
 	
-	private String last_name;
+	private String lastName;
 	
-	private ClientTypeDocument client_type;
+	private String clientType;
 	
-	public ClientDocument(String first_name, String last_name, ClientTypeDocument client_type) {
-		this.first_name = first_name;
-		this.last_name = last_name;
-		this.client_type = client_type;
-	}
+	private Integer dniClient;
+	
+	private String CEXClient;
+	
+	private String passportClient;
+
+	private Integer phoneNumber;
+	
+	private Integer IMEI;
+	
+	private String email;
 
 }

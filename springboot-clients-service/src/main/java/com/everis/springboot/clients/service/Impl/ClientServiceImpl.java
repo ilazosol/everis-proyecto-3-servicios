@@ -46,9 +46,9 @@ public class ClientServiceImpl implements ClientService {
 		Map<String, Object> response = new HashMap<>();
 	
 		return clientDao.findById(id).flatMap(c -> {
-			c.setFirst_name(client.getFirst_name());
-			c.setLast_name(client.getLast_name());
-			c.setClient_type(client.getClient_type());
+			c.setFirstName(client.getFirstName());
+			c.setLastName(client.getLastName());
+			c.setClientType(client.getClientType());
 			return clientDao.save(c);
 		}).map(clientUpdated -> {
 			response.put("client", clientUpdated);

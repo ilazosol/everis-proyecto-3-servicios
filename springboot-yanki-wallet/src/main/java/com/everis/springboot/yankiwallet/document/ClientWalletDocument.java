@@ -1,24 +1,21 @@
-package com.everis.springboot.clients.documents;
+package com.everis.springboot.yankiwallet.document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Document(collection = "clients")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ClientDocument {
-
-	@Id
+@Builder
+public class ClientWalletDocument {
+	
 	private String id;
 	
 	@NotEmpty
@@ -26,9 +23,6 @@ public class ClientDocument {
 	
 	@NotEmpty
 	private String lastName;
-	
-	@NotEmpty
-	private String clientType;
 	
 	@Min(10000000)
 	@Max(99999999)
@@ -38,8 +32,7 @@ public class ClientDocument {
 	
 	private String passportClient;
 	
-	@Min(100000000)
-	@Max(999999999)
+	@NotEmpty
 	private Integer phoneNumber;
 	
 	@NotEmpty
@@ -50,5 +43,4 @@ public class ClientDocument {
 	private String email;
 	
 	
-
 }

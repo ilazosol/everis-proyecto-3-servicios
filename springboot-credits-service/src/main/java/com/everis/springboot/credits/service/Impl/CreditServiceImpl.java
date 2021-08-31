@@ -61,7 +61,7 @@ public class CreditServiceImpl implements CreditService {
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 				}
 				
-				if(c.getClient_type().getDescription().equals("Personal") || c.getClient_type().getDescription().equals("VIP")) {
+				if(c.getClientType().equals("Personal") || c.getClientType().equals("VIP")) {
 					for (CreditDocument cre : credits) {
 						if(cre.getCreditType().equals("Credito Personal")) {
 							creditAccount++;
@@ -80,7 +80,7 @@ public class CreditServiceImpl implements CreditService {
 						}
 					}
 					
-				}else if(c.getClient_type().getDescription().equals("Empresarial") || c.getClient_type().getDescription().equals("PYME")) {
+				}else if(c.getClientType().equals("Empresarial") || c.getClientType().equals("PYME")) {
 					for (CreditDocument cre : credits) {
 						if(cre.getCreditType().equals("Tarjeta de Credito")) {
 							creditCard++;
@@ -90,15 +90,15 @@ public class CreditServiceImpl implements CreditService {
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 						}
 					}
-				}else if(!c.getClient_type().getDescription().equals("Empresarial") && !c.getClient_type().getDescription().equals("Personal") &&
-						!c.getClient_type().getDescription().equals("VIP") && !c.getClient_type().getDescription().equals("PYME")) {
+				}else if(!c.getClientType().equals("Empresarial") && !c.getClientType().equals("Personal") &&
+						!c.getClientType().equals("VIP") && !c.getClientType().equals("PYME")) {
 					response.put("mensaje", "El tipo de cliente es incorrecto");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 				}
 				
-				if((c.getClient_type().getDescription().equals("Personal") || c.getClient_type().getDescription().equals("VIP")) && credit.getCreditType().equals("Credito")) {
+				if((c.getClientType().equals("Personal") || c.getClientType().equals("VIP")) && credit.getCreditType().equals("Credito")) {
 					tipoCliente = "Credito Personal";
-				}else if ((c.getClient_type().getDescription().equals("Empresarial") || c.getClient_type().getDescription().equals("PYME")) && credit.getCreditType().equals("Credito")) {
+				}else if ((c.getClientType().equals("Empresarial") || c.getClientType().equals("PYME")) && credit.getCreditType().equals("Credito")) {
 					tipoCliente = "Credito Empresarial";
 				}else {
 					tipoCliente = credit.getCreditType();

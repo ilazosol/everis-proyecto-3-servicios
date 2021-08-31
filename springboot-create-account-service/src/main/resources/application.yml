@@ -1,0 +1,8 @@
+spring.cloud.stream:
+  function:
+    definition: producerCreate;consumerCreate
+  bindings:
+    producerCreate-out-0:
+      destination: sending-client
+    consumerCreate-in-0:
+      destination: receiving-client
