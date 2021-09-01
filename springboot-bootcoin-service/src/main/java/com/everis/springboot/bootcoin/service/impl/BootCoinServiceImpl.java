@@ -50,6 +50,9 @@ public class BootCoinServiceImpl implements BootCoinService {
 	@Value("${kafka.request.topic4}")
 	private String topicExistingClient;
 	
+	@Value("${kafka.request.topic5}")
+	private String topicTransferMovement;
+	
 	@Autowired
 	@Qualifier("createNewClientTemplate")
 	private ReplyingKafkaTemplate<String,Map<String, Object>,Map<String, String>> createNewClientTemplate;
@@ -57,6 +60,10 @@ public class BootCoinServiceImpl implements BootCoinService {
 	@Autowired
 	@Qualifier("findClientTemplate")
 	private ReplyingKafkaTemplate<String,Map<String, Object>,Map<String, String>> findClientTemplate;
+	
+	@Autowired
+	@Qualifier("createMovementTransfer")
+	private ReplyingKafkaTemplate<String,Map<String, Object>,Map<String, String>> createMovementTransfer;
 
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> createWalletBootCoin(ClientDocument client)
@@ -71,7 +78,7 @@ public class BootCoinServiceImpl implements BootCoinService {
 				Map<String, Object> request = new HashMap<>();
 				ObjectMapper mapper = new ObjectMapper();
 				request.put("client", client);
-				ProducerRecord<String, Map<String, Object>> record = new ProducerRecord<>(topicNewClient, request);
+				ProducerRecord<String, Map<String, Object>> record = new ProducerRecord<>(topicTransferMovement, request);
 				RequestReplyFuture<String, Map<String, Object>, Map<String, String>> future = createNewClientTemplate.sendAndReceive(record);
 				ConsumerRecord<String, Map<String, String>> res = future.get();
 				ClientDocument nc = mapper.readValue(res.value().get("client").toString(), ClientDocument.class);
@@ -119,11 +126,22 @@ public class BootCoinServiceImpl implements BootCoinService {
 	public Mono<ResponseEntity<Map<String, Object>>> solicitarCompraBootCoin(String idSolicitante, String idVendedor,
 			Double mount, String modalidad) throws ValidatorWalletException, InterruptedException, ExecutionException,
 			JsonMappingException, JsonProcessingException, JSONException {
-		Map<String, Object> response = new HashMap<>();
+			Map<String, Object> request = new HashMap<>();
 		
 		return bootCoinDao.findByIdClient(idSolicitante).flatMap( b -> {
-			
-			
+			Map<String, Object> response = new HashMap<>();
+			try {
+				
+				ProducerRecord<String, Map<String, Object>> record = new ProducerRecord<>(topicExistingClient, request);
+				RequestReplyFuture<String, Map<String, Object>, Map<String, String>> future = createMovementTransfer.sendAndReceive(record);
+				ConsumerRecord<String, Map<String, String>> res = future.get();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
 		}).defaultIfEmpty(new ResponseEntity<>(Map.of("mensaje","El cliente solicitante no dispone de un monedero Bootcoin"),HttpStatus.BAD_GATEWAY));
