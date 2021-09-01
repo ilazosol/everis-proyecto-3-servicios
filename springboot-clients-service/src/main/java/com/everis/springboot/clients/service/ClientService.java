@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 public interface ClientService {
 	
-	Mono<ResponseEntity<?>> saveClient(ClientDocument client);
+	Mono<ClientDocument> saveClient(ClientDocument client);
 	
 	Flux<ClientDocument> findClients();
 	

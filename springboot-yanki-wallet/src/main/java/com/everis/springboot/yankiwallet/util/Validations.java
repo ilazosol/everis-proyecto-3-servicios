@@ -1,7 +1,7 @@
 package com.everis.springboot.yankiwallet.util;
 
 import org.springframework.stereotype.Component;
-import com.everis.springboot.yankiwallet.document.ClientWalletDocument;
+import com.everis.springboot.yankiwallet.document.ClientDocument;
 import com.everis.springboot.yankiwallet.document.YankiWalletDocument;
 import com.everis.springboot.yankiwallet.exception.ValidatorWalletException;
 
@@ -16,7 +16,7 @@ public class Validations {
 		}
 	}
 	
-	public void validateClientWallet(ClientWalletDocument client) throws ValidatorWalletException{	
+	public void validateClientWallet(ClientDocument client) throws ValidatorWalletException{	
 		String mensajeValidacion = "";
 		if(client.getEmail() == null) {
 			mensajeValidacion = "Se necesita el email del cliente para la creacion de la cartera";

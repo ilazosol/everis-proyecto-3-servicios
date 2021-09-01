@@ -1,13 +1,17 @@
 package com.everis.springboot.clients.controller;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +36,13 @@ public class ClientController {
 	@PostMapping("/saveClient")
 	public Mono<ResponseEntity<?>> saveClient(@Valid @RequestBody ClientDocument client){
 		System.out.println("Entro al metodo guardar");
-		return clientService.saveClient(client);
+		Map<String, Object> response = new HashMap<>();
+
+		return clientService.saveClient(client).flatMap( nc -> {
+			response.put("mensaje", "Se registro al cliente: "+nc.getFirstName()+" "+nc.getLastName()+" correctamente");
+			response.put("cliente", nc);
+			return Mono.just(new ResponseEntity<>(nc, HttpStatus.OK));
+		});
 	}
 	
 	

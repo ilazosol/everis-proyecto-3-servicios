@@ -1,8 +1,0 @@
-spring.cloud.stream:
-  function:
-    definition: processorCreate
-  bindings:
-    processorCreate-in-0:
-      destination: sending-client
-    processorCreate-out-0:
-      destination: receiving-client

@@ -1,10 +1,5 @@
 package com.everis.springboot.yankiwallet.document;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,32 +9,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ClientWalletDocument {
+public class ClientDocument {
 	
 	private String id;
 	
-	@NotEmpty
 	private String firstName;
 	
-	@NotEmpty
 	private String lastName;
 	
-	@Min(10000000)
-	@Max(99999999)
+	private String clientType;
+	
 	private Integer dniClient;
 	
 	private String CEXClient;
 	
 	private String passportClient;
 	
-	@NotEmpty
 	private Integer phoneNumber;
 	
-	@NotEmpty
 	private Integer IMEI;
 	
-	@NotEmpty
-	@Email
 	private String email;
 	
 	

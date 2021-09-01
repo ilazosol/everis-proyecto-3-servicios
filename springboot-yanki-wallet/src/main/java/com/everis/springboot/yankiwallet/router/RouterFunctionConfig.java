@@ -15,7 +15,7 @@ public class RouterFunctionConfig {
 	public RouterFunction<ServerResponse> routes(YankiWalletHandler handler){
 		return route()
 			.GET("/getAll", handler::getAllWallets)
-			.POST("/createWallet", handler::createWalletExistingClient)
+			.POST("/createWallet", handler::createWalletClient)
 			.build();
 	}
 }

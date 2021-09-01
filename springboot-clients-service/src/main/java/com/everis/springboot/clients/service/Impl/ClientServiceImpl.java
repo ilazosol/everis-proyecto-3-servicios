@@ -22,13 +22,8 @@ public class ClientServiceImpl implements ClientService {
 	private ClientDao clientDao;
 
 	@Override
-	public Mono<ResponseEntity<?>> saveClient(ClientDocument client) {
-		Map<String, Object> response = new HashMap<>();
-		return clientDao.save(client).map( c -> {
-			response.put("mensaje", "Se registró el cliente correctamente");
-			response.put("cliente", c);
-			return new ResponseEntity<>(response,HttpStatus.OK);
-		});
+	public Mono<ClientDocument> saveClient(ClientDocument client) {
+		return clientDao.save(client);
 	}
 
 	@Override
